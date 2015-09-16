@@ -32,6 +32,9 @@ GEM
     kartograph (0.2.3)
     minitest (5.8.0)
     multipart-post (2.0.0)
+    net-scp (1.2.1)
+      net-ssh (>= 2.6.5)
+    net-ssh (2.9.2)
     resource_kit (0.1.3)
       addressable (~> 2.3.6)
     table_print (1.5.4)
@@ -50,4 +53,5 @@ PLATFORMS
 DEPENDENCIES
   colorize
   droplet_kit
+  net-scp
   table_print

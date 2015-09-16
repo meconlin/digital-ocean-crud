@@ -1,1 +1,2 @@
-key: '<your key goes here?'
+key: 'your digial ocean api key'
+scp_key_location: '<path to your ssh key'
