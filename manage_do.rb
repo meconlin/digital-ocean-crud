@@ -16,7 +16,6 @@ class ManageDo
   def initialize key=nil
     if !key
       config = YAML.load_file('config.yml')
-      puts config
       @key = config["key"]
     else
       @key = key
