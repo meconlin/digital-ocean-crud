@@ -63,6 +63,11 @@ class ManageDo
     tp keys.entries, :id, :name
   end
 
+  def list_images
+    images = client.images.all
+    tp images.entries, :id, :name
+  end
+
   # assumes you want to use first available key
   def get_key
     key = client.ssh_keys.all.entries.first
@@ -75,15 +80,17 @@ class ManageDo
     return droplet.networks.v4[0].ip_address
   end
 
-  def add name
+  def add name, image='ubuntu-14-04-x64'
 
     params = {
       name: name,
       region: 'nyc2',
-      image: 'ubuntu-14-04-x64',
+      image: image,
       size: '512mb',
       ssh_keys: [get_key.id]
     }
+
+    puts "adding box with params : #{params}"
 
     droplet = DropletKit::Droplet.new( params )
     created = client.droplets.create(droplet)
@@ -97,7 +104,6 @@ class ManageDo
 
   def list
     puts ""
-
     l =  lambda do |entry|
       if entry.status == "active"
         return entry.networks.v4[0].ip_address
@@ -136,6 +142,11 @@ opt_parser = OptionParser.new do |opt|
     options[:name] = name
   end
 
+  options[:image] = nil
+  opt.on("-m","--image=[IMAGE]", "image (id) for new instance (defaults to ubuntu-14)") do |image|
+    options[:image] = image
+  end
+
   opt.on("-h","--help","help") do
     puts opt_parser
   end
@@ -157,6 +168,8 @@ when "install"
   end
 when "keys"
   mdo.list_keys
+when "images"
+  mdo.list_images
 when "bounce"
   if !options[:instance_id]
     puts "WARNING : --instance_id is required to bounce an instance".yellow
@@ -168,13 +181,17 @@ when "bounce"
 when "list"
   mdo.list
 when "add"
-  puts "ADD called with : #{options[:name]}"
+  puts "ADD called with : #{options[:name]} : #{options[:image]}"
   if !options[:name]
     puts "WARNING : --name is required to add an instance".yellow
     puts opt_parser
     exit
   else
-    mdo.add options[:name]
+    if options[:image]
+      mdo.add options[:name], options[:image]
+    else
+      mdo.add options[:name]
+    end
     mdo.list
   end
 when "delete"
