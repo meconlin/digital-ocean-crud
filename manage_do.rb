@@ -30,7 +30,7 @@ class ManageDo
     end
   end
 
-  def bounce id
+  def bounce id, service
     ip = get_ip id
     bounce_command = "ssh -i #{@scp_key} root@#{ip} 'service captcha-vin-decode restart'"
     puts "bouncing with : #{bounce_command}"
@@ -130,11 +130,16 @@ opt_parser = OptionParser.new do |opt|
   opt.separator  "     add: add an instance - NAME is required"
   opt.separator  "     delete: delete an instance - INSTANCE_ID is required"
   opt.separator  "     install: run install on an instance - INSTANCE_ID is required"
+  opt.separator  "     bounce: restart a service on a box -INSTANCE_ID is required -SERVICE is required"
   opt.separator  ""
   opt.separator  "Options"
 
   opt.on("-i","--instance=[INSTNACE_ID]", "which instance to remove (id not name)") do |instance_id|
     options[:instance_id] = instance_id
+  end
+
+  opt.on("-s","--service=[SERVICE]", "which service to restart") do |service|
+    options[:service] = service
   end
 
   options[:name] = nil
@@ -171,12 +176,12 @@ when "keys"
 when "images"
   mdo.list_images
 when "bounce"
-  if !options[:instance_id]
-    puts "WARNING : --instance_id is required to bounce an instance".yellow
+  if !options[:instance_id] or !options[:service]
+    puts "WARNING : --instance_id and --service are required to bounce an instance".yellow
     puts opt_parser
     exit
   else
-    mdo.bounce options[:instance_id]
+    mdo.bounce options[:instance_id], options[:service]
   end
 when "list"
   mdo.list
